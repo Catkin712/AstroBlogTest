@@ -19,34 +19,29 @@ const skills = [
     "代码托管：GitHub",
     "线上部署：Netlify",
 ];
-// Welcome to Astro! Wondering what to do next? Check out the Astro documentation at https://docs.astro.build
-// Don't want to use any of this? Delete everything in this file, the `assets`, `components`, and `layouts` directories, and start fresh.
 ---
 
 <BaseLayout pageTitle={pageTitle}>
-    <h2>这是一个测试用个人内容站</h2>
+    <h2>这是一个个人内容站</h2>
 
-    <p>以下是关于catkin'sblog的几个事实：</p>
-    <ul>
-        <li>1 暂时由netlify线上部署</li>
-        <li>2 代码托管于github</li>
-        <li>3 这个站点目前接入了简单的响应式布局：只针对菜单</li>
-    </ul>
-    <p>技术栈</p>
+    <p>
+        我是 {identity.firstName}，目前是一名{identity.occupation}。这个博客用来记录技术学习、生活观察和个人内容。
+    </p>
+    <p>以下是关于 Catkin's Blog 的几个事实：</p>
+    <ol>
+        <li>暂时由 Netlify 线上部署</li>
+        <li>代码托管于 GitHub</li>
+        <li>目前接入了简单的响应式布局和暗色模式</li>
+    </ol>
+    <h2>技术栈</h2>
     <ul>
         {skills.map((skill) => <li class="skill">{skill}</li>)}
     </ul>
 </BaseLayout>
 
-<body>
-    <style>
-        h1 {
-            color: purple;
-            font-size: 4rem;
-        }
-        .skill {
-            color: green;
-            font-weight: bold;
-        }
-    </style>
-</body>
+<style>
+    .skill {
+        color: green;
+        font-weight: bold;
+    }
+</style>

@@ -5,9 +5,15 @@ const pageTitle = "Catkin's Blog";
 ---
 
 <BaseLayout pageTitle={pageTitle}>
-	<h2>From 2026.6.30 V1.0.0</h2>
-	<Greeting
-		client:load
-		messages={["catk1n", "iygv", "maize", "zhizhiwang", "colds1de"]}
-	/>
+    <section>
+        <h2>记录技术学习、生活观察和个人内容</h2>
+        <p>
+            这是 Catkin 的个人博客，目前主要用于整理 Astro 建站过程、学习笔记和日常记录。
+        </p>
+        <p>站点版本：2026.6.30 V1.0.0</p>
+        <Greeting
+            client:load
+            messages={["catk1n", "iygv", "maize", "zhizhiwang", "colds1de"]}
+        />
+    </section>
 </BaseLayout>

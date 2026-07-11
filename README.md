@@ -20,8 +20,11 @@
 - 代码托管：GitHub
 - 线上部署：Netlify
 
+## 内容管理
+文章存放在 `src/content/posts`，并由 `src/content.config.ts` 统一校验 frontmatter。
+
 ## 本地开发运行
-环境要求：Node.js 18 及以上版本
+环境要求：Node.js 22.12.0 及以上版本
 ```bash
 # 1. 克隆项目到本地
 git clone https://github.com/Catkin712/AstroBlogTest.git

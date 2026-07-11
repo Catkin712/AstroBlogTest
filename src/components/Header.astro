@@ -6,18 +6,19 @@ import ThemeIcon from "../components/ThemeIcon.astro";
 
 <header>
     <nav>
-        <dev>
+        <div class="header-actions">
             <ThemeIcon />
             <Menu />
-        </dev>
+        </div>
 
         <Navigation />
     </nav>
 </header>
 
 <style>
-    div {
+    .header-actions {
         display: flex;
         justify-content: space-between;
+        align-items: center;
     }
 </style>

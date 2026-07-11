@@ -1,17 +1,19 @@
 ---
 import BaseLayout from "../layouts/BaseLayout.astro";
 import BlogPost from "../components/BlogPost.astro";
-const allPosts = Object.values(
-    import.meta.glob("./posts/*.md", { eager: true }),
-);
-const pageTitle = "Catkin'sBlog(伪)";
+import { getCollection } from "astro:content";
+
+const allPosts = (await getCollection("posts"))
+    .filter((post) => !post.data.draft)
+    .sort((a, b) => b.data.pubDate.valueOf() - a.data.pubDate.valueOf());
+const pageTitle = "博客";
 ---
 
 <BaseLayout pageTitle={pageTitle}>
     <ul>
         {
-            allPosts.map((post: any) => (
-                <BlogPost url={post.url} title={post.frontmatter.title} />
+            allPosts.map((post) => (
+                <BlogPost url={`/posts/${post.id}/`} title={post.data.title} />
             ))
         }
     </ul>

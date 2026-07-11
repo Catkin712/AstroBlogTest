@@ -1,0 +1,69 @@
+---
+import BaseLayout from "../../layouts/BaseLayout.astro";
+import { getCollection, render } from "astro:content";
+
+export async function getStaticPaths() {
+    const posts = (await getCollection("posts")).filter(
+        (post) => !post.data.draft,
+    );
+
+    return posts.map((post) => ({
+        params: { slug: post.id },
+        props: { post },
+    }));
+}
+
+const { post } = Astro.props;
+const { Content } = await render(post);
+---
+
+<BaseLayout pageTitle={post.data.title} description={post.data.description}>
+    <p>{post.data.pubDate.toISOString().slice(0, 10)}</p>
+    <p><em>{post.data.description}</em></p>
+    <p>作者：{post.data.author}</p>
+    {
+        post.data.image && (
+            <img
+                src={post.data.image.url}
+                width="300"
+                alt={post.data.image.alt}
+            />
+        )
+    }
+    <div class="tags">
+        {
+            post.data.tags.map((tag) => (
+                <p class="tag">
+                    <a href={`/tags/${tag}`}>{tag}</a>
+                </p>
+            ))
+        }
+    </div>
+
+    <Content />
+</BaseLayout>
+
+<style>
+    a {
+        color: #00539f;
+    }
+
+    img {
+        max-width: 100%;
+        height: auto;
+    }
+
+    .tags {
+        display: flex;
+        flex-wrap: wrap;
+    }
+
+    .tag {
+        margin: 0.25em;
+        border: dotted 1px #a1a1a1;
+        border-radius: 0.5em;
+        padding: 0.5em 1em;
+        font-size: 1.15em;
+        background-color: #f8fcfd;
+    }
+</style>
