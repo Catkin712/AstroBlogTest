@@ -1,6 +1,6 @@
 ---
 import BaseLayout from "../layouts/BaseLayout.astro";
-const pageTitle = "关于Catk1ns";
+const pageTitle = "关于 Catkin";
 
 const identity = {
     firstName: "Willow_Catkin",
@@ -12,36 +12,176 @@ const identity = {
 };
 
 const skills = [
-    "核心框架：Astro v7.0.3",
-    "样式：原生 CSS",
-    "语言：TypeScript",
-    "包管理：npm",
-    "代码托管：GitHub",
-    "线上部署：Netlify",
+    {
+        name: "Astro",
+        detail: "核心框架 v7.0.3",
+        description: "负责静态页面生成、路由和内容集合。",
+    },
+    {
+        name: "TypeScript",
+        detail: "语言与类型",
+        description: "为页面逻辑和内容结构提供基础约束。",
+    },
+    {
+        name: "原生 CSS",
+        detail: "样式系统",
+        description: "保持轻量，不额外引入大型 UI 框架。",
+    },
+    {
+        name: "Content Collections",
+        detail: "文章管理",
+        description: "统一校验 Markdown frontmatter。",
+    },
+    {
+        name: "GitHub",
+        detail: "代码托管",
+        description: "保存源码、文章和后续发布流程。",
+    },
+    {
+        name: "Netlify",
+        detail: "线上部署",
+        description: "构建并托管静态站点。",
+    },
+];
+
+const platforms = [
+    {
+        name: "洛谷",
+        username: "457623",
+        url: "https://www.luogu.com.cn/user/457623",
+        description: "算法练习与竞赛记录。",
+    },
+    {
+        name: "GitHub",
+        username: "Catkin712",
+        url: "https://github.com/Catkin712",
+        description: "代码项目与博客源码。",
+    },
 ];
 ---
 
 <BaseLayout pageTitle={pageTitle}>
-    <h2>这是一个个人内容站</h2>
+    <section class="about-hero">
+        <p class="eyebrow">Catkin's Blog</p>
+        <h2>这是 Catkin 的个人内容站</h2>
+        <p>
+            {identity.firstName}, {identity.occupation}
+        </p>
+    </section>
 
-    <p>
-        我是 {identity.firstName}，目前是一名{identity.occupation}。这个博客用来记录技术学习、生活观察和个人内容。
-    </p>
-    <p>以下是关于 Catkin's Blog 的几个事实：</p>
-    <ol>
-        <li>暂时由 Netlify 线上部署</li>
-        <li>代码托管于 GitHub</li>
-        <li>目前接入了简单的响应式布局和暗色模式</li>
-    </ol>
-    <h2>技术栈</h2>
-    <ul>
-        {skills.map((skill) => <li class="skill">{skill}</li>)}
-    </ul>
+    <section class="about-section" aria-labelledby="tech-stack-title">
+        <div class="section-heading">
+            <p class="eyebrow">Stack</p>
+            <h2 id="tech-stack-title">技术栈</h2>
+        </div>
+        <div class="card-grid">
+            {
+                skills.map((skill) => (
+                    <article class="info-card">
+                        <p class="card-label">{skill.detail}</p>
+                        <h3>{skill.name}</h3>
+                        <p>{skill.description}</p>
+                    </article>
+                ))
+            }
+        </div>
+    </section>
+
+    <section class="about-section" aria-labelledby="platform-title">
+        <div class="section-heading">
+            <p class="eyebrow">Elsewhere</p>
+            <h2 id="platform-title">其他平台账号</h2>
+        </div>
+        <div class="card-grid account-grid">
+            {
+                platforms.map((platform) => (
+                    <a class="info-card account-card" href={platform.url}>
+                        <p class="card-label">{platform.name}</p>
+                        <h3>{platform.username}</h3>
+                        <p>{platform.description}</p>
+                    </a>
+                ))
+            }
+        </div>
+    </section>
 </BaseLayout>
 
 <style>
-    .skill {
-        color: green;
-        font-weight: bold;
+    .about-hero {
+        margin-bottom: 2rem;
+        border: 1px solid var(--line-color);
+        border-radius: 8px;
+        background: var(--panel-bg);
+        padding: 1.5rem;
+    }
+
+    .about-hero h2,
+    .section-heading h2,
+    .info-card h3 {
+        margin: 0;
+    }
+
+    .about-hero p:last-child {
+        margin-bottom: 0;
+        color: var(--muted-color);
+    }
+
+    .about-section {
+        margin-top: 2rem;
+    }
+
+    .section-heading {
+        margin-bottom: 1rem;
+    }
+
+    .eyebrow,
+    .card-label {
+        margin: 0 0 0.35rem;
+        color: var(--accent-color);
+        font-size: 0.8rem;
+        font-weight: 800;
+        text-transform: uppercase;
+    }
+
+    .card-grid {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 0.9rem;
+    }
+
+    .info-card {
+        display: block;
+        min-height: 145px;
+        border: 1px solid var(--line-color);
+        border-radius: 8px;
+        background: var(--panel-bg);
+        padding: 1rem;
+        color: inherit;
+        text-decoration: none;
+    }
+
+    .info-card h3 {
+        font-size: 1.15rem;
+    }
+
+    .info-card p:last-child {
+        margin-bottom: 0;
+        color: var(--muted-color);
+    }
+
+    .account-card:hover,
+    .account-card:focus {
+        border-color: var(--accent-color);
+        transform: translateY(-2px);
+    }
+
+    @media screen and (max-width: 760px) {
+        .card-grid {
+            grid-template-columns: 1fr;
+        }
+
+        .about-hero {
+            padding: 1rem;
+        }
     }
 </style>

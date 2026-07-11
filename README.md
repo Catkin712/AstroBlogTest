@@ -23,6 +23,13 @@
 ## 内容管理
 文章存放在 `src/content/posts`，并由 `src/content.config.ts` 统一校验 frontmatter。
 
+## 本地写作后台
+```bash
+npm run admin
+```
+
+打开 `http://127.0.0.1:8787` 后，可以新建或编辑 Markdown 文章。保存草稿会写入 `draft: true`，发布会写入 `draft: false`，后台里的“构建检查”会运行 `npm run build`。
+
 ## 本地开发运行
 环境要求：Node.js 22.12.0 及以上版本
 ```bash

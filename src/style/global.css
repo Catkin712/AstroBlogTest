@@ -1,13 +1,20 @@
 html {
-    background-color: #f1f5f9;
+    --page-bg: #f3f5f7;
+    --panel-bg: #ffffff;
+    --sidebar-bg: #eef3f6;
+    --line-color: #d9e1e8;
+    --text-color: #1f2933;
+    --muted-color: #677381;
+    --accent-color: #2f6f73;
+    --accent-hover: #24585c;
+    background-color: var(--page-bg);
+    color: var(--text-color);
     font-family: sans-serif;
 }
 
 body {
-    margin: 0 auto;
+    margin: 0;
     width: 100%;
-    max-width: 80ch;
-    padding: 1rem;
     line-height: 1.5;
 }
 
@@ -16,85 +23,110 @@ body {
 }
 
 h1 {
-    margin: 1rem 0;
+    margin: 0 0 1.5rem;
     font-size: 2.5rem;
 }
 
-/* 导航样式 */
+.site-shell {
+    display: grid;
+    grid-template-columns: 260px minmax(0, 1fr);
+    min-height: 100vh;
+}
+
+.site-main {
+    width: 100%;
+    max-width: 82ch;
+    padding: 3rem clamp(1rem, 4vw, 4rem);
+}
 
 .menu {
-    background-color: #0d0950;
-    border: none;
-    color: #fff;
-    font-size: 1.2rem;
+    display: none;
+    border: 1px solid var(--line-color);
+    border-radius: 6px;
+    background-color: var(--panel-bg);
+    color: var(--text-color);
+    font-size: 0.95rem;
     font-weight: bold;
-    padding: 5px 10px;
+    padding: 0.45rem 0.75rem;
 }
 
 .nav-links {
-    width: 100%;
-    display: none;
+    display: grid;
+    gap: 0.35rem;
     margin: 0;
 }
 
 .nav-links a {
     display: block;
-    text-align: center;
-    padding: 10px 0;
+    border-radius: 6px;
+    padding: 0.7rem 0.85rem;
     text-decoration: none;
-    font-size: 1.2rem;
+    font-size: 1rem;
     font-weight: bold;
-    text-transform: uppercase;
-    color: #0d0950;
+    color: var(--text-color);
 }
 
 .nav-links a:hover,
 .nav-links a:focus {
-    background-color: #ff9776;
-}
-
-:has(.menu[aria-expanded="true"]) .nav-links {
-    display: unset;
-}
-
-@media screen and (min-width: 636px) {
-    .nav-links {
-        margin-left: 5em;
-        display: block;
-        position: static;
-        width: auto;
-        background: none;
-    }
-
-    .nav-links a {
-        display: inline-block;
-        padding: 15px 20px;
-    }
-
-    :has(.menu[aria-expanded="true"]) .nav-links {
-        display: unset;
-    }
+    background-color: var(--panel-bg);
+    color: var(--accent-color);
 }
 
 html.dark {
-    background-color: #0d0950;
-    color: #fff;
+    --page-bg: #101820;
+    --panel-bg: #17212b;
+    --sidebar-bg: #121c25;
+    --line-color: #263645;
+    --text-color: #edf2f7;
+    --muted-color: #aab7c4;
+    --accent-color: #8ccfd3;
+    --accent-hover: #b7eef0;
+    background-color: var(--page-bg);
+    color: var(--text-color);
 }
 
 .dark .menu {
-    background-color: #fff;
-    color: #000;
+    background-color: var(--panel-bg);
+    color: var(--text-color);
 }
 
 .dark .nav-links a:hover,
 .dark .nav-links a:focus {
-    color: #0d0950;
+    color: var(--accent-hover);
 }
 
 .dark .nav-links a {
-    color: #fff;
+    color: var(--text-color);
 }
 
 .dark a {
-    color: #ff9776;
+    color: var(--accent-color);
+}
+
+@media screen and (max-width: 760px) {
+    .site-shell {
+        display: block;
+    }
+
+    .site-main {
+        max-width: none;
+        padding: 1.5rem 1rem 2rem;
+    }
+
+    h1 {
+        font-size: 2rem;
+    }
+
+    .menu {
+        display: inline-flex;
+        align-items: center;
+    }
+
+    .nav-links {
+        display: none;
+    }
+
+    :has(.menu[aria-expanded="true"]) .nav-links {
+        display: grid;
+    }
 }

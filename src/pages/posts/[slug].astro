@@ -15,55 +15,168 @@ export async function getStaticPaths() {
 
 const { post } = Astro.props;
 const { Content } = await render(post);
+const pubDate = post.data.pubDate.toISOString().slice(0, 10);
+const coverUrl = post.data.image?.url;
 ---
 
 <BaseLayout pageTitle={post.data.title} description={post.data.description}>
-    <p>{post.data.pubDate.toISOString().slice(0, 10)}</p>
-    <p><em>{post.data.description}</em></p>
-    <p>作者：{post.data.author}</p>
-    {
-        post.data.image && (
-            <img
-                src={post.data.image.url}
-                width="300"
-                alt={post.data.image.alt}
-            />
-        )
-    }
-    <div class="tags">
-        {
-            post.data.tags.map((tag) => (
-                <p class="tag">
-                    <a href={`/tags/${tag}`}>{tag}</a>
-                </p>
-            ))
-        }
-    </div>
+    <article class="article-page">
+        <header class="article-header">
+            <h2>{post.data.title}</h2>
+            <p class="article-description">{post.data.description}</p>
+            <div class="article-meta">
+                <span>作者：{post.data.author}</span>
+                <time datetime={post.data.pubDate.toISOString()}>{pubDate}</time>
+            </div>
+        </header>
 
-    <Content />
+        {
+            coverUrl && (
+                <img
+                    class="article-cover"
+                    src={coverUrl}
+                    alt={post.data.image?.alt ?? post.data.title}
+                />
+            )
+        }
+
+        <div class="article-content">
+            <Content />
+        </div>
+
+        {
+            post.data.tags.length > 0 && (
+                <footer class="article-tags" aria-label="文章标签">
+                    <p>标签</p>
+                    <div>
+                        {post.data.tags.map((tag) => (
+                            <a href={`/tags/${encodeURIComponent(tag)}/`}>
+                                {tag}
+                            </a>
+                        ))}
+                    </div>
+                </footer>
+            )
+        }
+    </article>
 </BaseLayout>
 
 <style>
-    a {
-        color: #00539f;
+    :global(.article-page ~ h1),
+    :global(.site-main > h1) {
+        display: none;
     }
 
-    img {
-        max-width: 100%;
-        height: auto;
+    .article-page {
+        border: 1px solid var(--line-color);
+        border-radius: 8px;
+        background: var(--panel-bg);
+        padding: clamp(1.25rem, 3vw, 2rem);
     }
 
-    .tags {
+    .article-header {
+        padding-bottom: 1.25rem;
+        border-bottom: 1px solid var(--line-color);
+    }
+
+    .article-header h2 {
+        margin: 0;
+        overflow-wrap: anywhere;
+        font-size: clamp(1.75rem, 4vw, 2.45rem);
+        line-height: 1.22;
+        letter-spacing: 0;
+    }
+
+    .article-description {
+        margin: 0.75rem 0 0;
+        color: var(--muted-color);
+        font-size: 1rem;
+        line-height: 1.7;
+    }
+
+    .article-meta {
         display: flex;
         flex-wrap: wrap;
+        gap: 0.5rem 1rem;
+        margin-top: 0.85rem;
+        color: var(--muted-color);
+        font-size: 0.9rem;
     }
 
-    .tag {
-        margin: 0.25em;
-        border: dotted 1px #a1a1a1;
-        border-radius: 0.5em;
-        padding: 0.5em 1em;
-        font-size: 1.15em;
-        background-color: #f8fcfd;
+    .article-cover {
+        display: block;
+        width: 100%;
+        max-height: 360px;
+        margin-top: 1.25rem;
+        border-radius: 8px;
+        object-fit: cover;
+        background: var(--page-bg);
+    }
+
+    .article-content {
+        margin-top: 1.5rem;
+        font-size: 1.03rem;
+        line-height: 1.85;
+    }
+
+    .article-content :global(h2),
+    .article-content :global(h3) {
+        margin: 2rem 0 0.75rem;
+        line-height: 1.35;
+    }
+
+    .article-content :global(p) {
+        margin: 1rem 0;
+    }
+
+    .article-content :global(a) {
+        color: var(--accent-color);
+    }
+
+    .article-content :global(img) {
+        max-width: 100%;
+        height: auto;
+        border-radius: 8px;
+    }
+
+    .article-tags {
+        margin-top: 2rem;
+        padding-top: 1rem;
+        border-top: 1px solid var(--line-color);
+    }
+
+    .article-tags p {
+        margin: 0 0 0.5rem;
+        color: var(--muted-color);
+        font-size: 0.82rem;
+        font-weight: 700;
+    }
+
+    .article-tags div {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.35rem;
+    }
+
+    .article-tags a {
+        border: 1px solid var(--line-color);
+        border-radius: 999px;
+        padding: 0.16rem 0.5rem;
+        background: var(--page-bg);
+        color: var(--muted-color);
+        font-size: 0.78rem;
+        text-decoration: none;
+    }
+
+    .article-tags a:hover,
+    .article-tags a:focus {
+        border-color: var(--accent-color);
+        color: var(--accent-color);
+    }
+
+    @media screen and (max-width: 560px) {
+        .article-page {
+            padding: 1rem;
+        }
     }
 </style>
