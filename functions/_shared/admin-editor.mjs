@@ -60,6 +60,25 @@ export const adminEditorStyles = String.raw`
                 margin: 0 0.15rem;
             }
 
+            .editor-grid {
+                display: grid;
+                grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+                gap: 1rem;
+                align-items: start;
+            }
+
+            .preview-panel {
+                display: grid;
+                gap: 0.45rem;
+            }
+
+            .preview-panel > p {
+                margin: 0;
+                color: var(--muted);
+                font-size: 0.875rem;
+                font-weight: 700;
+            }
+
             .preview {
                 min-height: 460px;
                 overflow-wrap: anywhere;
@@ -187,6 +206,12 @@ export const adminEditorStyles = String.raw`
 
             .preview th {
                 background: #f8fafc;
+            }
+
+            @media (max-width: 920px) {
+                .editor-grid {
+                    grid-template-columns: 1fr;
+                }
             }
 `;
 
@@ -346,6 +371,7 @@ export const adminEditorScript = String.raw`
     const setPreview = () => {
         preview.innerHTML = renderMarkdown(textarea.value);
     };
+    window.refreshMarkdownPreview = setPreview;
 
     const selection = () => ({
         start: textarea.selectionStart ?? textarea.value.length,
@@ -417,6 +443,7 @@ export const adminEditorScript = String.raw`
     });
 
     textarea.addEventListener("input", setPreview);
+    document.addEventListener("markdown-preview:refresh", setPreview);
     setPreview();
 })();
 `;

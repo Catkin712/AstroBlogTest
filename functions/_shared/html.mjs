@@ -234,6 +234,7 @@ export function renderAdminPage() {
         <meta name="viewport" content="width=device-width, initial-scale=1" />
         <title>Catkin's Blog Admin</title>
         <style>
+            :root { --line: #d9dee7; --brand: #216869; --muted: #687386; --code: #101828; }
             body { margin: 0; background: #f6f7f9; color: #20242c; font-family: sans-serif; }
             header { display: flex; justify-content: space-between; gap: 1rem; align-items: center; border-bottom: 1px solid #d9dee7; background: #fff; padding: 0.8rem 1rem; }
             h1 { margin: 0; font-size: 1.15rem; }
@@ -283,10 +284,16 @@ ${adminEditorStyles}
                     <label class="span-2">封面 URL<input id="imageUrl" /></label>
                     <label>上传封面<input id="imageFile" type="file" accept="image/png,image/jpeg,image/webp,image/gif" /></label>
                     <label>封面描述<input id="imageAlt" /></label>
-                    <div class="markdown-editor span-2">
-                        <label for="body">正文</label>
+                    <div class="editor-grid span-2">
+                        <div class="markdown-editor">
+                            <label for="body">正文</label>
 ${adminMarkdownToolbar}
-                        <textarea id="body" required></textarea>
+                            <textarea id="body" required></textarea>
+                        </div>
+                        <section class="preview-panel" aria-label="Markdown 预览">
+                            <p>预览</p>
+                            <article id="preview" class="preview"></article>
+                        </section>
                     </div>
                     <div class="span-2 actions">
                         <button id="saveDraft" type="button">保存草稿</button>
@@ -368,6 +375,11 @@ ${adminMarkdownToolbar}
                 els.imageAlt.value = post.data.image?.alt || "";
                 els.imageFile.value = "";
                 els.body.value = post.body || "";
+                if (typeof window.refreshMarkdownPreview === "function") {
+                    window.refreshMarkdownPreview();
+                } else {
+                    els.body.dispatchEvent(new Event("input", { bubbles: true }));
+                }
                 renderPostList();
                 setStatus("已加载 " + slug + ".md");
             };
@@ -377,6 +389,11 @@ ${adminMarkdownToolbar}
                 els.pubDate.value = new Date().toISOString().slice(0, 10);
                 els.author.value = "catkin";
                 els.body.value = "";
+                if (typeof window.refreshMarkdownPreview === "function") {
+                    window.refreshMarkdownPreview();
+                } else {
+                    els.body.dispatchEvent(new Event("input", { bubbles: true }));
+                }
                 setStatus("正在新建文章。");
                 renderPostList();
             };
