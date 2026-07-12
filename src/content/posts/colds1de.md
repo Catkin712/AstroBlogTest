@@ -7,7 +7,7 @@ image:
     url: "/covers/colds1de.jpg"
     alt: "Colds1de的测试文章"
 tags: []
-draft: false
+draft: true
 ---
 
 现在是7月12日下午 躺在床上刷视频的colds1de突然收到了catkin的消息
@@ -23,3 +23,7 @@ draft: false
 我再试一下链接
 [超链接测试](https://space.bilibili.com/1630188527spm_id_from=333.337.0.0）
 ok这个也用不了 你在干什么catkin...
+
+![BQACAgUAAyEGAASHRsPbAAEXDatqU03p2C9KscW7CPwriQWSaEPA0AACbiEAAnbMoFZBweuKZ6DPIzwE.png](https://img.remit.ee/api/file/BQACAgUAAyEGAASHRsPbAAEXDatqU03p2C9KscW7CPwriQWSaEPA0AACbiEAAnbMoFZBweuKZ6DPIzwE.png)
+
+ok图片也用不了
