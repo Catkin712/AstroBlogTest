@@ -3,6 +3,7 @@ title: "Colds1de的测试文章"
 pubDate: 2026-07-12
 description: "cos的小测试"
 author: "colds1de"
+category: "未分类"
 image:
     url: "/covers/colds1de.jpg"
     alt: "Colds1de的测试文章"

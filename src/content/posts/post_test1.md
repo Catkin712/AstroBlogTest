@@ -3,6 +3,7 @@ title: "catkin的一个测试文章"
 pubDate: 1970-01-01
 description: "这是 Catkin Astro 博客的第一篇文章。"
 author: "catkin"
+category: "未分类"
 image:
     url: "https://docs.astro.build/assets/rose.webp"
     alt: "The Astro logo on a dark background with a pink glow."

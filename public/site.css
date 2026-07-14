@@ -252,7 +252,8 @@ h1 {
 }
 
 .post-feed,
-.archive-list {
+.archive-list,
+.category-list {
     display: grid;
     gap: 1rem;
 }
@@ -260,7 +261,8 @@ h1 {
 .post-card,
 .article-page,
 .archive-item,
-.tag-card {
+.tag-card,
+.category-group {
     border: 1px solid var(--line-color);
     border-radius: 8px;
     background: var(--panel-bg);
@@ -297,6 +299,11 @@ h1 {
     gap: 0.5rem 0.75rem;
     color: var(--muted-color);
     font-size: 0.85rem;
+}
+
+.article-meta a {
+    color: var(--accent-color);
+    text-decoration: none;
 }
 
 .post-card h2 {
@@ -377,6 +384,53 @@ h1 {
 
 .archive-item p {
     margin: 0.25rem 0 0;
+    color: var(--muted-color);
+    font-size: 0.9rem;
+}
+
+.category-group {
+    padding: 1rem;
+}
+
+.category-group h2 {
+    margin: 0;
+    font-size: 1.2rem;
+}
+
+.category-group h2 a,
+.category-group li a {
+    text-decoration: none;
+}
+
+.category-group h2 a:hover,
+.category-group h2 a:focus,
+.category-group li a:hover,
+.category-group li a:focus,
+.article-meta a:hover,
+.article-meta a:focus {
+    color: var(--accent-color);
+}
+
+.category-group p {
+    margin: 0.2rem 0 0.8rem;
+    color: var(--muted-color);
+}
+
+.category-group ol {
+    display: grid;
+    gap: 0.5rem;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+}
+
+.category-group li {
+    display: grid;
+    grid-template-columns: 7rem minmax(0, 1fr);
+    gap: 0.75rem;
+}
+
+.category-group time {
     color: var(--muted-color);
     font-size: 0.9rem;
 }
@@ -541,6 +595,7 @@ h1 {
     }
 
     .archive-item,
+    .category-group li,
     .article-header {
         grid-template-columns: 1fr;
     }

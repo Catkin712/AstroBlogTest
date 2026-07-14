@@ -1,5 +1,11 @@
 import { adminEditorScript, adminEditorStyles, adminMarkdownToolbar } from "./admin-editor.mjs";
-import { formatPostDate, getPublishedTags, publicPostSummary } from "./blog.mjs";
+import {
+    formatPostDate,
+    getPublishedCategories,
+    getPublishedTags,
+    normalizeCategory,
+    publicPostSummary,
+} from "./blog.mjs";
 
 const siteName = "Catkin's Blog";
 const defaultDescription = "Catkin's Blog 是一个记录技术学习、生活观察和个人内容的轻量博客。";
@@ -96,6 +102,7 @@ export function renderArticle(post) {
                     <div class="article-meta">
                         <span>作者：${escapeHtml(post.data.author)}</span>
                         <time datetime="${escapeAttr(post.data.pubDate)}">${escapeHtml(formatPostDate(post))}</time>
+                        <a href="/categories/${encodeURIComponent(normalizeCategory(post.data.category))}/">${escapeHtml(normalizeCategory(post.data.category))}</a>
                     </div>
                 </div>
                 <img class="article-cover" src="${escapeAttr(coverUrl)}" alt="${escapeAttr(coverAlt)}" loading="lazy" />
@@ -141,6 +148,53 @@ export function renderTagPage(tag, posts) {
         </section>
     `;
     return renderLayout({ title: tag, active: "/tags/", body, showTitle: false });
+}
+
+export function renderCategoriesIndex(posts) {
+    const categories = getPublishedCategories(posts);
+    const body = `
+        <h1>分类</h1>
+        <section class="category-list" aria-label="文章分类">
+            ${categories
+                .map((category) => {
+                    const categoryPosts = posts.filter(
+                        (post) => normalizeCategory(post.data.category) === category,
+                    );
+                    return `
+                        <section class="category-group">
+                            <h2><a href="/categories/${encodeURIComponent(category)}/">${escapeHtml(category)}</a></h2>
+                            <p>${categoryPosts.length} 篇文章</p>
+                            <ol>
+                                ${categoryPosts
+                                    .map(
+                                        (post) => `
+                                            <li>
+                                                <time datetime="${escapeAttr(post.data.pubDate)}">${escapeHtml(formatPostDate(post))}</time>
+                                                <a href="/posts/${encodeURIComponent(post.id)}/">${escapeHtml(post.data.title)}</a>
+                                            </li>
+                                        `,
+                                    )
+                                    .join("")}
+                            </ol>
+                        </section>
+                    `;
+                })
+                .join("")}
+        </section>
+    `;
+    return renderLayout({ title: "分类", active: "/categories/", body, showTitle: false });
+}
+
+export function renderCategoryPage(category, posts) {
+    const normalizedCategory = normalizeCategory(category);
+    const body = `
+        <h1>${escapeHtml(normalizedCategory)}</h1>
+        <p>分类为「${escapeHtml(normalizedCategory)}」的文章</p>
+        <section class="post-feed">
+            ${posts.map(renderPostCard).join("") || '<p class="article-description">暂无文章。</p>'}
+        </section>
+    `;
+    return renderLayout({ title: normalizedCategory, active: "/categories/", body, showTitle: false });
 }
 
 export function renderSearchJson(posts) {
@@ -280,6 +334,8 @@ ${adminEditorStyles}
                     <label class="span-2">标题<input id="title" required /></label>
                     <label class="span-2">描述<input id="description" required /></label>
                     <label>作者<input id="author" required /></label>
+                    <label>分类<input id="category" list="categoryOptions" placeholder="未分类" /></label>
+                    <datalist id="categoryOptions"></datalist>
                     <label>标签<input id="tags" placeholder="逗号分隔" /></label>
                     <label class="span-2">封面 URL<input id="imageUrl" /></label>
                     <label>上传封面<input id="imageFile" type="file" accept="image/png,image/jpeg,image/webp,image/gif" /></label>
@@ -312,6 +368,8 @@ ${adminMarkdownToolbar}
                 pubDate: document.querySelector("#pubDate"),
                 description: document.querySelector("#description"),
                 author: document.querySelector("#author"),
+                category: document.querySelector("#category"),
+                categoryOptions: document.querySelector("#categoryOptions"),
                 tags: document.querySelector("#tags"),
                 imageUrl: document.querySelector("#imageUrl"),
                 imageFile: document.querySelector("#imageFile"),
@@ -324,6 +382,11 @@ ${adminMarkdownToolbar}
             const setStatus = (value) => { els.status.textContent = value; };
             const escapeHtml = (value) => String(value).replace(/[&<>"']/g, (char) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[char]);
             const slugify = (value) => value.toLowerCase().trim().replace(/[^a-z0-9\\s_-]/g, "").replace(/[\\s_]+/g, "-").replace(/-+/g, "-").replace(/^-|-$/g, "");
+            const normalizeCategory = (value) => String(value || "").trim() || "未分类";
+            const refreshCategoryOptions = () => {
+                const categories = [...new Set(posts.map((post) => normalizeCategory(post.category)))].sort();
+                els.categoryOptions.innerHTML = categories.map((category) => '<option value="' + escapeHtml(category) + '"></option>').join("");
+            };
             const requestJson = async (url, options) => {
                 const response = await fetch(url, { headers: { "content-type": "application/json" }, ...options });
                 const payload = await response.json().catch(() => ({}));
@@ -347,6 +410,7 @@ ${adminMarkdownToolbar}
                 pubDate: els.pubDate.value,
                 description: els.description.value.trim(),
                 author: els.author.value.trim(),
+                category: normalizeCategory(els.category.value),
                 tags: els.tags.value.split(",").map((tag) => tag.trim()).filter(Boolean),
                 draft,
                 imageUrl: els.imageUrl.value.trim(),
@@ -360,6 +424,7 @@ ${adminMarkdownToolbar}
             };
             const loadPosts = async () => {
                 posts = await requestJson("/api/posts");
+                refreshCategoryOptions();
                 renderPostList();
             };
             const loadPost = async (slug) => {
@@ -370,6 +435,7 @@ ${adminMarkdownToolbar}
                 els.pubDate.value = String(post.data.pubDate || "").slice(0, 10);
                 els.description.value = post.data.description || "";
                 els.author.value = post.data.author || "";
+                els.category.value = normalizeCategory(post.data.category);
                 els.tags.value = (post.data.tags || []).join(", ");
                 els.imageUrl.value = post.data.image?.url || "";
                 els.imageAlt.value = post.data.image?.alt || "";
@@ -388,6 +454,7 @@ ${adminMarkdownToolbar}
                 els.form.reset();
                 els.pubDate.value = new Date().toISOString().slice(0, 10);
                 els.author.value = "catkin";
+                els.category.value = "未分类";
                 els.body.value = "";
                 if (typeof window.refreshMarkdownPreview === "function") {
                     window.refreshMarkdownPreview();
@@ -432,6 +499,7 @@ function renderPostCard(post) {
                     <div class="post-card-meta">
                         <span>${escapeHtml(formatPostDate(post))}</span>
                         <span>${escapeHtml(post.data.author)}</span>
+                        <span>${escapeHtml(normalizeCategory(post.data.category))}</span>
                     </div>
                     <h2>${escapeHtml(post.data.title)}</h2>
                     <p>${escapeHtml(post.data.description)}</p>
@@ -489,9 +557,10 @@ function renderLayout({
 function renderSidebar(active) {
     const navItems = [
         ["/", "首页"],
+        ["/categories/", "分类"],
         ["/archive/", "归档"],
-        ["/about/", "关于"],
         ["/tags/", "标签"],
+        ["/about/", "关于"],
     ];
     return `
         <header class="site-sidebar">

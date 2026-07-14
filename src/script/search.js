@@ -26,7 +26,7 @@ const renderResults = (posts) => {
             (post) => `
                 <a class="search-result" href="${post.url}">
                     <span>${post.title}</span>
-                    <small>${post.author} · ${post.pubDate}</small>
+                    <small>${post.author} · ${post.category ?? "未分类"} · ${post.pubDate}</small>
                 </a>
             `,
         )
@@ -46,6 +46,7 @@ const search = (keyword) => {
             const haystack = [
                 post.title,
                 post.author,
+                post.category,
                 post.description,
                 ...(post.tags ?? []),
             ]

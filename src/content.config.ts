@@ -8,6 +8,7 @@ const posts = defineCollection({
         pubDate: z.coerce.date(),
         description: z.string(),
         author: z.string(),
+        category: z.string().default("未分类"),
         image: z
             .object({
                 url: z.string().min(1),

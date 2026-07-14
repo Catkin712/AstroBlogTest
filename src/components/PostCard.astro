@@ -6,6 +6,7 @@ const pubDate =
 const postUrl = `/posts/${post.id}/`;
 const coverUrl = post.data.image?.url ?? "/defaultCover.png";
 const coverAlt = post.data.image?.alt ?? `${post.data.title} 的文章封面`;
+const category = post.data.category?.trim() || "未分类";
 ---
 
 <article class="post-card">
@@ -15,6 +16,7 @@ const coverAlt = post.data.image?.alt ?? `${post.data.title} 的文章封面`;
             <div class="post-card-meta">
                 <span>{pubDate}</span>
                 <span>{post.data.author}</span>
+                <span>{category}</span>
             </div>
             <h2>{post.data.title}</h2>
             <p>{post.data.description}</p>
@@ -69,6 +71,7 @@ const coverAlt = post.data.image?.alt ?? `${post.data.title} 的文章封面`;
         color: var(--muted-color);
         font-size: 0.85rem;
     }
+
 
     .post-card h2 {
         margin: 0;

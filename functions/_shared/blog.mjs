@@ -71,6 +71,7 @@ export async function listAdminPosts(env) {
             pubDate: post.data.pubDate,
             description: post.data.description,
             author: post.data.author,
+            category: post.data.category,
             tags: post.data.tags,
             draft: post.data.draft,
         }))
@@ -102,6 +103,7 @@ export function publicPostSummary(post) {
         title: post.data.title,
         description: post.data.description,
         author: post.data.author,
+        category: post.data.category,
         tags: post.data.tags,
         pubDate: formatPostDate(post),
         url: `/posts/${post.id}/`,
@@ -119,6 +121,14 @@ export function dateValue(post) {
 
 export function getPublishedTags(posts) {
     return [...new Set(posts.flatMap((post) => post.data.tags))].sort();
+}
+
+export function getPublishedCategories(posts) {
+    return [...new Set(posts.map((post) => normalizeCategory(post.data.category)))].sort();
+}
+
+export function normalizeCategory(value) {
+    return String(value ?? "").trim() || "未分类";
 }
 
 function parsePost(slug, markdown) {
@@ -145,7 +155,7 @@ function parseMarkdown(markdown) {
 }
 
 function parseFrontmatter(frontmatter) {
-    const data = { tags: [], draft: false };
+    const data = { tags: [], draft: false, category: "未分类" };
     const lines = frontmatter.split(/\r?\n/);
 
     for (let i = 0; i < lines.length; i += 1) {
@@ -177,6 +187,7 @@ function parseFrontmatter(frontmatter) {
         pubDate: String(data.pubDate ?? ""),
         description: String(data.description ?? ""),
         author: String(data.author ?? ""),
+        category: normalizeCategory(data.category),
         image: data.image,
         tags: Array.isArray(data.tags) ? data.tags.map(String) : [],
         draft: Boolean(data.draft),
@@ -216,6 +227,7 @@ function normalizePost(payload) {
         pubDate: String(payload.pubDate).slice(0, 10),
         description: String(payload.description).trim(),
         author: String(payload.author).trim(),
+        category: normalizeCategory(payload.category),
         tags: Array.isArray(payload.tags)
             ? payload.tags.map((tag) => String(tag).trim()).filter(Boolean)
             : [],
@@ -274,6 +286,7 @@ function serializeMarkdown(post) {
         `pubDate: ${post.pubDate}`,
         `description: ${JSON.stringify(post.description)}`,
         `author: ${JSON.stringify(post.author)}`,
+        `category: ${JSON.stringify(post.category)}`,
     ];
 
     if (post.image) {

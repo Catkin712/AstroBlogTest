@@ -449,6 +449,12 @@ ${adminEditorStyles}
                             <input id="author" name="author" required />
                         </label>
                         <label>
+                            分类
+                            <input id="category" name="category" list="categoryOptions" placeholder="未分类" />
+                            <datalist id="categoryOptions"></datalist>
+                            <span>可选择已有分类，也可以直接输入新分类</span>
+                        </label>
+                        <label>
                             标签
                             <input id="tags" name="tags" placeholder="astro, blog" />
                             <span>用英文逗号分隔</span>
@@ -500,6 +506,8 @@ ${adminMarkdownToolbar}
                 slug: document.querySelector("#slug"),
                 pubDate: document.querySelector("#pubDate"),
                 author: document.querySelector("#author"),
+                category: document.querySelector("#category"),
+                categoryOptions: document.querySelector("#categoryOptions"),
                 tags: document.querySelector("#tags"),
                 imageUrl: document.querySelector("#imageUrl"),
                 imageFile: document.querySelector("#imageFile"),
@@ -515,8 +523,16 @@ ${adminMarkdownToolbar}
             let currentSlug = "";
 
             const today = () => new Date().toISOString().slice(0, 10);
+            const normalizeCategory = (value) => String(value || "").trim() || "未分类";
             const setStatus = (message) => {
                 els.status.textContent = message;
+            };
+
+            const refreshCategoryOptions = () => {
+                const categories = [...new Set(posts.map((post) => normalizeCategory(post.category)))].sort();
+                els.categoryOptions.innerHTML = categories
+                    .map((category) => '<option value="' + escapeHtml(category) + '"></option>')
+                    .join("");
             };
 
             const slugify = (value) => {
@@ -610,6 +626,7 @@ ${adminMarkdownToolbar}
                 els.slug.readOnly = Boolean(post.slug);
                 els.pubDate.value = (post.data.pubDate ?? today()).slice(0, 10);
                 els.author.value = post.data.author ?? "catkin";
+                els.category.value = normalizeCategory(post.data.category);
                 els.tags.value = (post.data.tags ?? []).join(", ");
                 els.imageUrl.value = post.data.image?.url ?? "";
                 els.imageFile.value = "";
@@ -626,6 +643,7 @@ ${adminMarkdownToolbar}
                 els.slug.readOnly = false;
                 els.pubDate.value = today();
                 els.author.value = "catkin";
+                els.category.value = "未分类";
                 els.body.value = "";
                 refreshPreview();
                 setStatus("正在新建文章。");
@@ -660,6 +678,7 @@ ${adminMarkdownToolbar}
                 pubDate: els.pubDate.value,
                 description: els.description.value.trim(),
                 author: els.author.value.trim(),
+                category: normalizeCategory(els.category.value),
                 tags: els.tags.value.split(",").map((tag) => tag.trim()).filter(Boolean),
                 draft,
                 imageUrl: els.imageUrl.value.trim(),
@@ -682,6 +701,7 @@ ${adminMarkdownToolbar}
 
             const loadPosts = async () => {
                 posts = await requestJson("/api/posts");
+                refreshCategoryOptions();
                 renderPostList();
             };
 
@@ -1077,6 +1097,7 @@ async function listPosts() {
                 pubDate: post.data.pubDate,
                 description: post.data.description,
                 author: post.data.author,
+                category: post.data.category,
                 tags: post.data.tags,
                 draft: post.data.draft,
             };
@@ -1129,6 +1150,7 @@ function normalizePost(payload) {
         pubDate: String(payload.pubDate).slice(0, 10),
         description: String(payload.description).trim(),
         author: String(payload.author).trim(),
+        category: String(payload.category ?? "").trim() || "未分类",
         tags: Array.isArray(payload.tags)
             ? payload.tags.map((tag) => String(tag).trim()).filter(Boolean)
             : [],
@@ -1192,7 +1214,7 @@ function parseMarkdown(markdown) {
 }
 
 function parseFrontmatter(frontmatter) {
-    const data = { tags: [], draft: false };
+    const data = { tags: [], draft: false, category: "未分类" };
     const lines = frontmatter.split(/\r?\n/);
 
     for (let i = 0; i < lines.length; i += 1) {
@@ -1224,6 +1246,7 @@ function parseFrontmatter(frontmatter) {
         pubDate: String(data.pubDate ?? ""),
         description: data.description ?? "",
         author: data.author ?? "",
+        category: String(data.category ?? "").trim() || "未分类",
         image: data.image,
         tags: Array.isArray(data.tags) ? data.tags : [],
         draft: Boolean(data.draft),
@@ -1257,6 +1280,7 @@ function serializeMarkdown(post) {
         `pubDate: ${post.pubDate}`,
         `description: ${JSON.stringify(post.description)}`,
         `author: ${JSON.stringify(post.author)}`,
+        `category: ${JSON.stringify(post.category)}`,
     ];
 
     if (post.image) {
