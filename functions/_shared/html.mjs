@@ -1,4 +1,10 @@
-import { adminEditorScript, adminEditorStyles, adminMarkdownToolbar } from "./admin-editor.mjs";
+import {
+    adminEditorScript,
+    adminEditorStyles,
+    adminMarkdownToolbar,
+    katexCssHref,
+    katexScriptHref,
+} from "./admin-editor.mjs";
 import {
     formatPostDate,
     getPublishedCategories,
@@ -287,6 +293,8 @@ export function renderAdminPage() {
         <meta charset="utf-8" />
         <meta name="viewport" content="width=device-width, initial-scale=1" />
         <title>Catkin's Blog Admin</title>
+        <link rel="stylesheet" href="${katexCssHref}" crossorigin="anonymous" />
+        <script src="${katexScriptHref}" crossorigin="anonymous"></script>
         <style>
             :root { --line: #d9dee7; --brand: #216869; --muted: #687386; --code: #101828; }
             body { margin: 0; background: #f6f7f9; color: #20242c; font-family: sans-serif; }
@@ -534,6 +542,7 @@ function renderLayout({
         <meta name="description" content="${escapeAttr(description)}" />
         <title>${escapeHtml(title)}</title>
         <script>try{const t=localStorage.getItem("theme");const d=t?t==="dark":matchMedia("(prefers-color-scheme: dark)").matches;document.documentElement.classList.toggle("dark",d)}catch{}</script>
+        <link rel="stylesheet" href="${katexCssHref}" crossorigin="anonymous" />
         <link rel="stylesheet" href="/site.css" />
     </head>
     <body>

@@ -103,6 +103,13 @@ html.dark {
     color: var(--accent-color);
 }
 
+.article-content .katex-display,
+.preview .katex-display {
+    overflow-x: auto;
+    overflow-y: hidden;
+    padding: 0.25rem 0;
+}
+
 @media screen and (max-width: 760px) {
     .site-shell {
         display: block;

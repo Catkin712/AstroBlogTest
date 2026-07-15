@@ -1,4 +1,5 @@
 import { marked } from "marked";
+import markedKatex from "marked-katex-extension";
 
 const postsPath = "src/content/posts";
 const cacheTtl = 60 * 1000;
@@ -11,6 +12,7 @@ marked.setOptions({
     gfm: true,
     breaks: false,
 });
+marked.use(markedKatex({ throwOnError: false, strict: "ignore", nonStandard: true }));
 
 export function clearPostCache() {
     postsCache = {

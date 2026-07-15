@@ -1,3 +1,6 @@
+export const katexCssHref = "https://cdn.jsdelivr.net/npm/katex@0.17.0/dist/katex.min.css";
+export const katexScriptHref = "https://cdn.jsdelivr.net/npm/katex@0.17.0/dist/katex.min.js";
+
 export const adminMarkdownToolbar = String.raw`<div class="markdown-toolbar" role="toolbar" aria-label="Markdown shortcuts">
     <button type="button" data-md-action="heading-1" title="Heading 1">H1</button>
     <button type="button" data-md-action="heading-2" title="Heading 2">H2</button>
@@ -14,6 +17,22 @@ export const adminMarkdownToolbar = String.raw`<div class="markdown-toolbar" rol
     <button type="button" data-md-action="hr" title="Horizontal rule">HR</button>
     <button type="button" data-md-action="ul" title="Bulleted list">UL</button>
     <button type="button" data-md-action="ol" title="Numbered list">OL</button>
+    <details class="katex-toolbar">
+        <summary>KaTeX</summary>
+        <div class="katex-toolbar-grid" role="group" aria-label="KaTeX shortcuts">
+            <button type="button" data-md-action="math-inline" title="Inline formula">$x$</button>
+            <button type="button" data-md-action="math-block" title="Display formula">$$</button>
+            <button type="button" data-md-action="math-frac" title="Fraction">\frac</button>
+            <button type="button" data-md-action="math-sup" title="Superscript">x^2</button>
+            <button type="button" data-md-action="math-sub" title="Subscript">x_i</button>
+            <button type="button" data-md-action="math-sub-sup" title="Subscript and superscript">x_i^n</button>
+            <button type="button" data-md-action="math-sum" title="Summation">\sum</button>
+            <button type="button" data-md-action="math-ge" title="Greater than or equal">\ge</button>
+            <button type="button" data-md-action="math-le" title="Less than or equal">\le</button>
+            <button type="button" data-md-action="math-because" title="Because">\because</button>
+            <button type="button" data-md-action="math-therefore" title="Therefore">\therefore</button>
+        </div>
+    </details>
 </div>`;
 
 export const adminEditorStyles = String.raw`
@@ -73,6 +92,49 @@ export const adminEditorStyles = String.raw`
                 width: 1px;
                 background: var(--line);
                 margin: 0 0.15rem;
+            }
+
+            .katex-toolbar {
+                flex-basis: 100%;
+                min-width: 0;
+                border-top: 1px solid var(--line);
+                padding-top: 0.45rem;
+            }
+
+            .katex-toolbar summary {
+                display: inline-flex;
+                align-items: center;
+                min-height: 2rem;
+                padding: 0.2rem 0.55rem;
+                border: 1px solid var(--line);
+                border-radius: 5px;
+                background: #ffffff;
+                cursor: pointer;
+                color: var(--code);
+                font-size: 0.84rem;
+                font-weight: 700;
+                list-style: none;
+            }
+
+            .katex-toolbar summary::-webkit-details-marker {
+                display: none;
+            }
+
+            .katex-toolbar summary::after {
+                content: "+";
+                margin-left: 0.45rem;
+                color: var(--muted);
+            }
+
+            .katex-toolbar[open] summary::after {
+                content: "-";
+            }
+
+            .katex-toolbar-grid {
+                display: flex;
+                flex-wrap: wrap;
+                gap: 0.35rem;
+                padding-top: 0.45rem;
             }
 
             .editor-grid {
@@ -231,6 +293,12 @@ export const adminEditorStyles = String.raw`
                 background: #f8fafc;
             }
 
+            .preview .katex-display {
+                overflow-x: auto;
+                overflow-y: hidden;
+                padding: 0.25rem 0;
+            }
+
             @media (max-width: 920px) {
                 .editor-grid {
                     grid-template-columns: 1fr;
@@ -263,7 +331,27 @@ export const adminEditorScript = String.raw`
         }[char]));
 
     const isBlockStart = (line) =>
-        /^\s*(?:#{1,6}\s+|(?:-{3,}|\*{3,}|_{3,})\s*$|\x60\x60\x60|\s*> ?|\s*(?:[-*+]|\d+\.)\s+)/.test(line);
+        /^\s*(?:#{1,6}\s+|(?:-{3,}|\*{3,}|_{3,}|\$\$|\\\[)\s*$|\x60\x60\x60|\s*> ?|\s*(?:[-*+]|\d+\.)\s+)/.test(line);
+
+    const renderKatex = (formula, displayMode = false) => {
+        if (!window.katex) {
+            return (
+                '<code class="math-fallback">' +
+                escapeHtml(displayMode ? "$$" + formula + "$$" : "$" + formula + "$") +
+                "</code>"
+            );
+        }
+
+        try {
+            return window.katex.renderToString(formula, {
+                displayMode,
+                throwOnError: false,
+                strict: "ignore",
+            });
+        } catch {
+            return '<code class="math-fallback">' + escapeHtml(formula) + "</code>";
+        }
+    };
 
     const renderInline = (value) => {
         const tokens = [];
@@ -273,8 +361,23 @@ export const adminEditorScript = String.raw`
             return token;
         };
 
-        let text = escapeHtml(value);
-        text = text.replace(/\x60([^\x60]+)\x60/g, (_, code) => store("<code>" + code + "</code>"));
+        let text = String(value ?? "");
+        text = text.replace(/\x60([^\x60]+)\x60/g, (_, code) =>
+            store("<code>" + escapeHtml(code) + "</code>"),
+        );
+        text = text.replace(/\\\(([\s\S]+?)\\\)/g, (_, formula) =>
+            store(renderKatex(formula, false)),
+        );
+        text = text.replace(/\\\[([\s\S]+?)\\\]/g, (_, formula) =>
+            store(renderKatex(formula, true)),
+        );
+        text = text.replace(/\$\$([\s\S]+?)\$\$/g, (_, formula) =>
+            store(renderKatex(formula, true)),
+        );
+        text = text.replace(/(^|[^\\])\$([^\s$](?:[\s\S]*?[^\s$])?)\$/g, (_, prefix, formula) =>
+            prefix + store(renderKatex(formula, false)),
+        );
+        text = escapeHtml(text);
         text = text.replace(/!\[([^\]]*)\]\(([^)]+)\)/g, (_, alt, src) =>
             store(
                 '<img src="' +
@@ -305,6 +408,30 @@ export const adminEditorScript = String.raw`
             const line = lines[i];
 
             if (!line.trim()) {
+                i += 1;
+                continue;
+            }
+
+            if (/^\s*\$\$\s*$/.test(line) || /^\s*\\\[\s*$/.test(line)) {
+                const closePattern = /^\s*\$\$\s*$/.test(line)
+                    ? /^\s*\$\$\s*$/
+                    : /^\s*\\\]\s*$/;
+                const formula = [];
+                i += 1;
+                while (i < lines.length && !closePattern.test(lines[i])) {
+                    formula.push(lines[i]);
+                    i += 1;
+                }
+                if (i < lines.length) {
+                    i += 1;
+                }
+                html.push(renderKatex(formula.join("\n"), true));
+                continue;
+            }
+
+            const singleLineDisplayMath = /^\s*\$\$([\s\S]+)\$\$\s*$/.exec(line);
+            if (singleLineDisplayMath) {
+                html.push(renderKatex(singleLineDisplayMath[1], true));
                 i += 1;
                 continue;
             }
@@ -445,6 +572,46 @@ export const adminEditorScript = String.raw`
         replaceRange(start, end, text, offset, offset);
     };
 
+    const isInsideMath = (value, position) => {
+        const before = value.slice(0, position);
+        let dollarCount = 0;
+        for (let i = 0; i < before.length; i += 1) {
+            if (before[i] === "$" && before[i - 1] !== "\\") {
+                dollarCount += 1;
+            }
+        }
+        return dollarCount % 2 === 1 || /\\\([^\)]*$/.test(before) || /\\\[[^\]]*$/.test(before);
+    };
+
+    const insertMathSnippet = (snippet, cursorStart = snippet.length, cursorEnd = cursorStart) => {
+        const { start, end, value } = selection();
+        const needsWrapper = !isInsideMath(value, start);
+        const replacement = needsWrapper ? "$" + snippet + "$" : snippet;
+        const wrapperOffset = needsWrapper ? 1 : 0;
+        replaceRange(
+            start,
+            end,
+            replacement,
+            wrapperOffset + cursorStart,
+            wrapperOffset + cursorEnd,
+        );
+    };
+
+    const insertFraction = () => {
+        const { start, end, value } = selection();
+        const selected = value.slice(start, end) || "a";
+        const snippet = "\\frac{" + selected + "}{b}";
+        const denominatorStart = snippet.length - 2;
+        insertMathSnippet(snippet, denominatorStart, denominatorStart + 1);
+    };
+
+    const insertDisplayMath = () => {
+        const { start, end, value } = selection();
+        const selected = value.slice(start, end) || "x = y";
+        const replacement = "$$\n" + selected + "\n$$";
+        replaceRange(start, end, replacement, 3, 3 + selected.length);
+    };
+
     const actions = {
         "heading-1": () => prefixCurrentLines("# ", "# "),
         "heading-2": () => prefixCurrentLines("## ", "## "),
@@ -459,6 +626,17 @@ export const adminEditorScript = String.raw`
         hr: () => insertAtCursor("\n\n---\n\n", 2),
         ul: () => prefixCurrentLines("- ", "- "),
         ol: () => prefixCurrentLines("1. ", "1. "),
+        "math-inline": () => wrapSelection("$", "$", "x"),
+        "math-block": insertDisplayMath,
+        "math-frac": insertFraction,
+        "math-sup": () => insertMathSnippet("x^{2}", 3, 4),
+        "math-sub": () => insertMathSnippet("x_{i}", 3, 4),
+        "math-sub-sup": () => insertMathSnippet("x_{i}^{n}", 3, 4),
+        "math-sum": () => insertMathSnippet("\\sum_{i=1}^{n}", 6, 9),
+        "math-ge": () => insertMathSnippet("\\ge"),
+        "math-le": () => insertMathSnippet("\\le"),
+        "math-because": () => insertMathSnippet("\\because"),
+        "math-therefore": () => insertMathSnippet("\\therefore"),
     };
 
     toolbar.querySelectorAll("button[data-md-action]").forEach((button) => {

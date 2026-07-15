@@ -15,9 +15,14 @@
     "astro": "astro"
   },
   "dependencies": {
+    "@astrojs/markdown-remark": "^7.2.0",
     "@astrojs/preact": "^6.0.1",
     "astro": "^7.0.3",
+    "katex": "^0.17.0",
     "marked": "^18.0.6",
-    "preact": "^10.29.7"
+    "marked-katex-extension": "^5.1.10",
+    "preact": "^10.29.7",
+    "rehype-katex": "^7.0.1",
+    "remark-math": "^6.0.0"
   }
 }

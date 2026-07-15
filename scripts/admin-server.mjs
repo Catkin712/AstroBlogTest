@@ -3,7 +3,13 @@ import { createHmac, timingSafeEqual } from "node:crypto";
 import { existsSync, readFileSync } from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
-import { adminEditorScript, adminEditorStyles, adminMarkdownToolbar } from "../functions/_shared/admin-editor.mjs";
+import {
+    adminEditorScript,
+    adminEditorStyles,
+    adminMarkdownToolbar,
+    katexCssHref,
+    katexScriptHref,
+} from "../functions/_shared/admin-editor.mjs";
 
 const modulePath = fileURLToPath(import.meta.url);
 const projectRoot = path.resolve(path.dirname(modulePath), "..");
@@ -174,6 +180,8 @@ const adminHtml = String.raw`<!doctype html>
         <meta charset="utf-8" />
         <meta name="viewport" content="width=device-width, initial-scale=1" />
         <title>Catkin's Blog Admin</title>
+        <link rel="stylesheet" href="${katexCssHref}" crossorigin="anonymous" />
+        <script src="${katexScriptHref}" crossorigin="anonymous"></script>
         <style>
             :root {
                 color-scheme: light;
@@ -616,6 +624,10 @@ ${adminMarkdownToolbar}
             };
 
             const refreshPreview = () => {
+                if (typeof window.refreshMarkdownPreview === "function") {
+                    window.refreshMarkdownPreview();
+                    return;
+                }
                 els.preview.innerHTML = renderMarkdown(els.body.value);
             };
 

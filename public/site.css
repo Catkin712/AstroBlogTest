@@ -504,6 +504,12 @@ h1 {
     border-radius: 8px;
 }
 
+.article-content .katex-display {
+    overflow-x: auto;
+    overflow-y: hidden;
+    padding: 0.25rem 0;
+}
+
 .article-tags {
     margin-top: 2rem;
     padding-top: 1rem;
