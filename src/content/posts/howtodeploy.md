@@ -9,7 +9,7 @@ image:
     alt: "【自用】如何将本地代码部署至服务器"
 tags: ["web","服务器"]
 featured: false
-draft: false
+draft: true
 ---
 
 ### 在本地项目目录打包：
