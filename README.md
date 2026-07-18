@@ -172,7 +172,7 @@ npm run deploy:vps
 catkinblog
 ```
 
-## 在新电脑上部署到 VPS
+## 如果你需要在电脑上部署到 VPS
 
 项目代码由 GitHub 托管。换一台电脑后，需要先把项目拉到本地，再配置 SSH 免密和 `catkinblog` 别名，之后就可以用一键部署脚本发布到服务器。
 
