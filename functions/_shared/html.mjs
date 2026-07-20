@@ -217,6 +217,40 @@ export function renderCategoryPage(category, posts) {
     return renderLayout({ title: normalizedCategory, active: "/categories/", body, showTitle: false });
 }
 
+export function renderGuestbook(messages = []) {
+    const body = `
+        <section class="guestbook-page" aria-labelledby="guestbook-title">
+            <div class="guestbook-hero">
+                <p class="eyebrow">Guestbook</p>
+                <h1 id="guestbook-title">留言板</h1>
+                <p>不用登录，留下昵称和想说的话，它会变成一朵小云飘在这里。</p>
+            </div>
+
+            <form class="guestbook-form" id="guestbook-form">
+                <label>
+                    昵称
+                    <input name="nickname" maxlength="24" autocomplete="nickname" placeholder="匿名小猫" />
+                </label>
+                <label>
+                    留言
+                    <textarea name="content" maxlength="120" required placeholder="写一句轻轻的话吧"></textarea>
+                </label>
+                <button type="submit">放飞留言</button>
+                <p class="guestbook-status" id="guestbook-status" role="status"></p>
+            </form>
+
+            <div class="guestbook-sky" id="guestbook-sky" aria-live="polite">
+                ${messages.length > 0
+            ? messages.map((message, index) => renderGuestbookCloud(message, index)).join("")
+            : '<p class="guestbook-empty">还没有留言，第一朵云等你来放飞。</p>'
+        }
+            </div>
+        </section>
+    `;
+
+    return renderLayout({ title: "留言板", active: "/guestbook/", body, showTitle: false });
+}
+
 export function renderSearchJson(posts) {
     return posts.map(publicPostSummary);
 }
@@ -775,13 +809,7 @@ function renderRightSidebar() {
 }
 
 function renderSidebar(active) {
-    const navItems = [
-        ["/", "首页"],
-        ["/categories/", "分类"],
-        ["/archive/", "归档"],
-        ["/tags/", "标签"],
-        ["/about/", "关于"],
-    ];
+    const articleActive = ["/categories/", "/archive/", "/tags/"].includes(active);
     return `
         <header class="site-sidebar">
             <div class="sidebar-inner">
@@ -806,17 +834,53 @@ function renderSidebar(active) {
                 </a>
                 <nav aria-label="主导航">
                     <div id="main-menu" class="nav-links">
-                        ${navItems
-            .map(
-                ([href, label]) =>
-                    `<a class="${active === href ? "active" : ""}" href="${href}">${label}</a>`,
-            )
-            .join("")}
+                        <a class="${active === "/" ? "active" : ""}" href="/">首页</a>
+                        <div class="nav-group ${articleActive ? "open" : ""}">
+                            <button class="nav-group-toggle" type="button" aria-expanded="${articleActive ? "true" : "false"}">
+                                <span>文章</span>
+                                <span aria-hidden="true">⌄</span>
+                            </button>
+                            <div class="nav-sub-links">
+                                <a class="${active === "/categories/" ? "active" : ""}" href="/categories/">分类</a>
+                                <a class="${active === "/archive/" ? "active" : ""}" href="/archive/">归档</a>
+                                <a class="${active === "/tags/" ? "active" : ""}" href="/tags/">标签</a>
+                            </div>
+                        </div>
+                        <a class="${active === "/guestbook/" ? "active" : ""}" href="/guestbook/">留言板</a>
+                        <a class="${active === "/about/" ? "active" : ""}" href="/about/">关于</a>
                     </div>
                 </nav>
             </div>
         </header>
     `;
+}
+
+function renderGuestbookCloud(message, index) {
+    const seed = hashText(message.id || `${message.createdAt}-${message.content}`);
+    const x = 4 + (seed % 72);
+    const y = 8 + ((seed >> 3) % 68);
+    const tone = (seed % 5) + 1;
+    const scale = 86 + (seed % 34);
+    const drift = index % 2 === 0 ? "normal" : "reverse";
+
+    return `
+        <article
+            class="guestbook-cloud tone-${tone}"
+            style="--x:${x}; --y:${y}; --scale:${scale}; --drift:${drift};"
+            title="${escapeAttr(message.nickname)}"
+            data-author="${escapeAttr(message.nickname)}"
+        >
+            <p>${escapeHtml(message.content)}</p>
+        </article>
+    `;
+}
+
+function hashText(value) {
+    let hash = 0;
+    for (const char of String(value)) {
+        hash = (hash * 31 + char.charCodeAt(0)) >>> 0;
+    }
+    return hash;
 }
 
 export function escapeHtml(value) {

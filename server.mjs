@@ -18,6 +18,7 @@ const env = process.env;
 const routes = [
     ["GET", /^\/$/, "functions/index.js"],
     ["GET", /^\/admin\/?$/, "functions/admin.js"],
+    ["GET", /^\/guestbook\/?$/, "functions/guestbook/index.js"],
     ["GET", /^\/archive\/?$/, "functions/archive/index.js"],
     ["GET", /^\/tags\/?$/, "functions/tags/index.js"],
     ["GET", /^\/tags\/([^/]+)\/?$/, "functions/tags/[tag]/index.js", ["tag"]],
@@ -31,6 +32,8 @@ const routes = [
     ["GET", /^\/posts\/([^/]+)\/?$/, "functions/posts/[slug]/index.js", ["slug"]],
     ["GET", /^\/search\.json$/, "functions/search.json.js"],
     ["GET", /^\/rss\.xml$/, "functions/rss.xml.js"],
+    ["GET", /^\/api\/guestbook$/, "functions/api/guestbook.js"],
+    ["POST", /^\/api\/guestbook$/, "functions/api/guestbook.js"],
     ["GET", /^\/api\/posts$/, "functions/api/posts.js"],
     ["GET", /^\/api\/posts\/([^/]+)$/, "functions/api/posts/[slug].js", ["slug"]],
     ["PUT", /^\/api\/posts\/([^/]+)$/, "functions/api/posts/[slug].js", ["slug"]],

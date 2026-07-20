@@ -124,20 +124,61 @@ h1 {
     margin: 0;
 }
 
-.nav-links a {
+.nav-links a,
+.nav-group-toggle {
     display: block;
+    width: 100%;
+    border: 0;
     border-radius: 6px;
+    background: transparent;
     padding: 0.7rem 0.85rem;
     text-decoration: none;
     font-size: 1rem;
     font-weight: bold;
+    font-family: inherit;
+    text-align: left;
     color: var(--text-color);
 }
 
 .nav-links a:hover,
-.nav-links a:focus {
+.nav-links a:focus,
+.nav-links a.active,
+.nav-group-toggle:hover,
+.nav-group-toggle:focus {
     background-color: var(--panel-bg);
     color: var(--accent-color);
+}
+
+.nav-group-toggle {
+    display: flex;
+    cursor: pointer;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.nav-group-toggle span:last-child {
+    transition: transform 0.18s ease;
+}
+
+.nav-group.open .nav-group-toggle span:last-child {
+    transform: rotate(180deg);
+}
+
+.nav-sub-links {
+    display: none;
+    gap: 0.25rem;
+    margin-top: 0.25rem;
+    padding-left: 0.75rem;
+}
+
+.nav-group.open .nav-sub-links {
+    display: grid;
+}
+
+.nav-sub-links a {
+    padding: 0.5rem 0.75rem;
+    color: var(--muted-color);
+    font-size: 0.92rem;
 }
 
 html.dark {
